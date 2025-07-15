@@ -12,4 +12,10 @@ class BotUser extends Model
         'phone',
         'username',
     ];
+
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
+    }
+
 }

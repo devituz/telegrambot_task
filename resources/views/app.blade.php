@@ -19,16 +19,19 @@
 
     </div>
     <div id="groups-page" class="page">
-        @include('Groups')
+        @include('Group')
 
     </div>
+{{--    <div id="groups-page" class="page">--}}
+{{--        @include('Debt')--}}
+
+{{--    </div>--}}
     <div id="settings-page" class="page">
         @include('Settings')
 
     </div>
     @include('Navigation')
 </div>
-
 
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>

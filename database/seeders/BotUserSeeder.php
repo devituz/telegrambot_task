@@ -12,6 +12,8 @@ class BotUserSeeder extends Seeder
      */
     public function run(): void
     {
+//        \App\Models\Student::truncate();
+
         BotUser::insert([
             [
                 'first_name' => 'Shohbozbek',

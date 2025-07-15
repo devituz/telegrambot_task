@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Student extends Model
 {
@@ -10,9 +11,13 @@ class Student extends Model
         'first_name',
         'last_name',
         'phone',
-        'debt',
-        'is_active',
     ];
+
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'group_student')->withTimestamps();
+    }
+
 
     public function getFullNameAttribute(): string
     {

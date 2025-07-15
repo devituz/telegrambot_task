@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bot_user_id')->constrained('bot_users')->onDelete('cascade');
-            $table->string('name');
-            $table->time('start_time');
-            $table->time('end_time');
-            $table->boolean('active')->default(true);
+            $table->foreignId('group_student_id')->constrained('group_student')->onDelete('cascade');            $table->integer('score');
+            $table->string('desc')->nullable();
+            $table->date('date');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('evaluations');
     }
 };

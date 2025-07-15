@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Student;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Group;
 use Illuminate\Database\Seeder;
+use Faker\Factory as Faker;
 
 class StudentSeeder extends Seeder
 {
@@ -13,42 +14,21 @@ class StudentSeeder extends Seeder
      */
     public function run(): void
     {
-        Student::insert([
-            [
-                'first_name' => 'Saidxon',
-                'last_name' => 'Zarifjonov',
-                'phone' => '+998884086612',
-                'debt' => 250000,
-                'is_active' => false,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'first_name' => 'Kozimjon',
-                'last_name' => 'Hamroqulov',
-                'phone' => '+998333435503',
-                'debt' => 250000,
-                'is_active' => false,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'first_name' => 'Begzod',
-                'last_name' => 'Abdusamiyev',
-                'phone' => '+998939901424',
-                'debt' => 250000,
-                'is_active' => false,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],   [
-                'first_name' => 'Begzod',
-                'last_name' => 'Abdusamiyev',
-                'phone' => '+998939901424',
-                'debt' => 250000,
-                'is_active' => false,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+
+//        \App\Models\Student::truncate();
+
+
+        $faker = Faker::create();
+
+
+        foreach (range(1, 100) as $i) {
+            Student::create([
+                'first_name'  => $faker->firstName,
+                'last_name'   => $faker->lastName,
+                'phone'       => '+998' . $faker->numerify('9########'),
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
+        }
     }
 }

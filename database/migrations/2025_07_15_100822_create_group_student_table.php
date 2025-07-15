@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('group_student', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bot_user_id')->constrained('bot_users')->onDelete('cascade');
-            $table->string('name');
-            $table->time('start_time');
-            $table->time('end_time');
-            $table->boolean('active')->default(true);
+            $table->foreignId('group_id')->constrained('groups')->onDelete('cascade');
+            $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('group_student');
     }
 };
