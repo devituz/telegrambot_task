@@ -1,62 +1,81 @@
+function updateActiveNavBtn(url) {
+    document.querySelectorAll('.nav-btn').forEach(b => {
+        // faqat path qismi solishtiriladi (query yoki hash bo'lsa ham)
+        const btnPath = new URL(b.getAttribute('data-url'), window.location.origin).pathname;
+        const urlPath = new URL(url, window.location.origin).pathname;
+        if (btnPath === urlPath) {
+            b.classList.add('text-blue-600');
+        } else {
+            b.classList.remove('text-blue-600');
+        }
+    });
+}
 
-    // Navigation functionality
-    const navItems = document.querySelectorAll('.nav-item');
-    const pages = document.querySelectorAll('.page');
-
-    // Set initial active state
-    document.querySelector('[data-page="home"]').classList.add('active');
-
-    navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        const targetPage = item.getAttribute('data-page');
-
-        // Remove active class from all nav items and pages
-        navItems.forEach(nav => nav.classList.remove('active'));
-        pages.forEach(page => page.classList.remove('active'));
-
-        // Add active class to clicked nav item and corresponding page
-        item.classList.add('active');
-        document.getElementById(targetPage + '-page').classList.add('active');
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const url = btn.getAttribute('data-url');
+        fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.querySelector('#main-content').innerHTML;
+                if (newContent) {
+                    document.getElementById('main-content').innerHTML = newContent;
+                    updateActiveNavBtn(url);
+                    window.history.pushState({}, '', url);
+                    console.log(`[NAV] Sahifa almashdi: ${url}`);
+                } else {
+                    console.warn(`[NAV] Sahifa almashmadi: ${url} (content topilmadi)`);
+                }
+            })
+            .catch(error => {
+                console.error(`[NAV] Xatolik: Sahifa almashmadi: ${url}`, error);
+            });
     });
 });
 
-    // Add click animations to buttons
-    document.querySelectorAll('button').forEach(button => {
-    button.addEventListener('click', function(e) {
-        // Create ripple effect
-        const ripple = document.createElement('span');
-        const rect = this.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = e.clientX - rect.left - size / 2;
-        const y = e.clientY - rect.top - size / 2;
+window.addEventListener('popstate', function() {
+    const url = window.location.pathname;
+    fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+        .then(res => res.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContent = doc.querySelector('#main-content').innerHTML;
+            if (newContent) {
+                document.getElementById('main-content').innerHTML = newContent;
+                updateActiveNavBtn(url);
+                console.log(`[NAV] popstate bilan sahifa almashdi: ${url}`);
+            } else {
+                console.warn(`[NAV] popstate bilan sahifa almashmadi: ${url} (content topilmadi)`);
+            }
+        })
+        .catch(error => {
+            console.error(`[NAV] popstate bilan xatolik: Sahifa almashmadi: ${url}`, error);
+        });
+});
 
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        ripple.classList.add('ripple');
-
-        this.appendChild(ripple);
-
-        setTimeout(() => {
-            ripple.remove();
-        }, 600);
-    });
+// Sahifa yuklanganda ham to'g'ri nav-btn rang berish:
+window.addEventListener('DOMContentLoaded', function() {
+    updateActiveNavBtn(window.location.pathname);
 });
 
 
-    window.onload = function () {
-        const tg = window.Telegram.WebApp;
-        tg.ready();
+window.onload = function () {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
 
-        const user = tg.initDataUnsafe?.user;
+    const user = tg.initDataUnsafe?.user;
 
-        const fullName = user
-            ? `${user.last_name ?? ''} ${user.first_name ?? ''}`.trim() + '!'
-            : 'Foydalanuvchi topilmadi!';
+    const fullName = user
+        ? `${user.last_name ?? ''} ${user.first_name ?? ''}`.trim() + '!'
+        : 'Foydalanuvchi topilmadi!';
 
-        const fullnameMain = document.getElementById('user-fullname');
-        if (fullnameMain) fullnameMain.textContent = fullName;
+    const fullnameMain = document.getElementById('user-fullname');
+    if (fullnameMain) fullnameMain.textContent = fullName;
 
-        const fullnameSmall = document.getElementById('user-fullname-small');
-        if (fullnameSmall) fullnameSmall.textContent = fullName;
-    };
+    const fullnameSmall = document.getElementById('user-fullname-small');
+    if (fullnameSmall) fullnameSmall.textContent = fullName;
+};

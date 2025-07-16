@@ -18,4 +18,9 @@ class BotUser extends Model
         return $this->hasMany(Group::class);
     }
 
+    public function getFullnameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
+    }
+
 }

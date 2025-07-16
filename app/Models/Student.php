@@ -28,4 +28,5 @@ class Student extends Model
     {
         return strtoupper(mb_substr($this->first_name, 0, 1) . mb_substr($this->last_name, 0, 1));
     }
+
 }

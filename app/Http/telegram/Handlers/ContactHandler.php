@@ -3,6 +3,8 @@
 namespace App\Http\Telegram\Handlers;
 
 use App\Models\BotUser;
+use DefStudio\Telegraph\Keyboard\Button;
+use DefStudio\Telegraph\Keyboard\Keyboard;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use DefStudio\Telegraph\DTO\Message;
 use Illuminate\Support\Facades\Log;
@@ -36,16 +38,22 @@ class ContactHandler
                 'username' => $username,
             ]);
 
+            $keyboard = Keyboard::make()
+                ->row([
+                    Button::make('🔗 Web ilovani ochish')->webApp(config('app.url')),
+                ]);
+
+
             $chat->message("
-✅ Telefon raqamingiz ro'yxatdan o'tgan:
-👤 $fullName
-📞 $phone
-            ")->send();
+✅  $fullName sizning telefon raqamingiz ro'yxatdan o'tgan:
+        ")
+                ->keyboard($keyboard)
+                ->send();
         } else {
             $chat->message("
-❌ Kechirasiz, bu telefon raqami bizning tizimda topilmadi:
-📞 $phone
-            ")->send();
+❌ Kechirasiz,  $phone telefon raqami bizning tizimda topilmadi:
+
+        ")->send();
         }
 
         Log::info("📥 Kontakt tekshirildi", [
@@ -54,5 +62,4 @@ class ContactHandler
             'exists_in_db' => (bool)$user,
             'username_from_telegram' => $username,
         ]);
-    }
-}
+    }}

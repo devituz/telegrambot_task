@@ -2,35 +2,153 @@
 // app/Http/Controllers/HomeController.php
 namespace App\Http\Controllers;
 
+use App\Models\BotUser;
+use App\Models\Evaluation;
 use App\Models\Group;
+use App\Models\GroupStudent;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // Guruhlar statistikasi
-        $groups = Group::orderBy('start_time')->get();
-        $totalGroups = $groups->count();
-        $attendanceTakenCount = $groups->where('attendance_taken', true)->count();
+        $phone = request()->query('phone', '+998889442402');
+        $normalizedPhone = preg_replace('/[^0-9]/', '', $phone);
 
-        // O‘quvchilar statistikasi
-        $students = Student::all();
-        $totalStudents = $students->count();
-        $activeStudents = $students->where('is_active', true)->count();
-        $debtorsCount = $students->where('debt', '>', 0)->count();
-        $totalDebt = $students->sum('debt');
+        $botUser = BotUser::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), ' ', ''), '-', '') = ?", [$normalizedPhone])->first();
 
-        return view('app', compact(
-            'groups',
-            'totalGroups',
-            'attendanceTakenCount',
-            'totalStudents',
-            'activeStudents',
-            'debtorsCount',
-            'totalDebt',
-            'students' // o‘quvchilar ro‘yxati (foydalanish uchun)
-        ));
+        if (!$botUser) {
+            return view('home', [
+                'error' => 'Foydalanuvchi topilmadi.',
+                'fullname' => '',
+                'groups' => collect(),
+                'totalGroups' => 0,
+                'attendanceTakenCount' => 0,
+                'totalStudents' => 0,
+                'activeStudents' => 0,
+                'debtorsCount' => 0,
+                'totalDebt' => 0,
+                'students' => collect(),
+            ]);
+        }
+
+        $groupCounts = GroupStudent::select('group_id', DB::raw('count(*) as students_count'))
+            ->groupBy('group_id')
+            ->pluck('students_count', 'group_id');
+
+        $groups = Group::where('bot_user_id', $botUser->id)
+            ->orderBy('start_time')
+            ->get();
+
+        foreach ($groups as $group) {
+            $group->students_count = $groupCounts[$group->id] ?? 0;
+
+            $groupStudentIds = GroupStudent::where('group_id', $group->id)->pluck('id');
+
+            $group->attendance_taken = $groupStudentIds->every(function ($groupStudentId) {
+                return Evaluation::where('group_student_id', $groupStudentId)
+                    ->where('score', '>', 0)
+                    ->exists();
+            });
+        }
+
+        $students = $botUser->groups->flatMap->students->unique('id');
+
+        return view('home', [
+            'fullname' => $botUser->fullname, // ✅ model accessor orqali yuborilyapti
+            'groups' => $groups,
+            'totalGroups' => $groups->count(),
+            'attendanceTakenCount' => $groups->where('attendance_taken', true)->count(),
+            'totalStudents' => $students->count(),
+            'activeStudents' => $students->where('is_active', true)->count(),
+            'debtorsCount' => $students->where('debt', '>', 0)->count(),
+            'totalDebt' => $students->sum('debt'),
+            'students' => $students,
+        ]);
     }
+
+
+
+
+    public function group()
+    {
+        $phone = request()->query('phone', '+998889442402');
+        $normalizedPhone = preg_replace('/[^0-9]/', '', $phone);
+
+        $botUser = BotUser::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), ' ', ''), '-', '') = ?", [$normalizedPhone])->first();
+
+        if (!$botUser) {
+            return view('app', [
+                'error' => 'Foydalanuvchi topilmadi.',
+                'groups' => collect(),
+                'totalGroups' => 0,
+                'attendanceTakenCount' => 0,
+                'totalStudents' => 0,
+                'activeStudents' => 0,
+                'debtorsCount' => 0,
+                'totalDebt' => 0,
+                'students' => collect(),
+            ]);
+        }
+
+        $groupCounts = GroupStudent::select('group_id', DB::raw('count(*) as students_count'))
+            ->groupBy('group_id')
+            ->pluck('students_count', 'group_id');
+
+
+        $groups = Group::where('bot_user_id', $botUser->id)
+            ->orderBy('start_time')
+            ->get();
+
+        foreach ($groups as $group) {
+            $group->students_count = $groupCounts[$group->id] ?? 0;
+
+            $groupStudentIds = GroupStudent::where('group_id', $group->id)->pluck('id');
+
+            $group->attendance_taken = $groupStudentIds->every(function ($groupStudentId) {
+                return Evaluation::where('group_student_id', $groupStudentId)
+                    ->where('score', '>', 0)
+                    ->exists();
+            });
+        }
+
+        $students = $botUser->groups->flatMap->students->unique('id');
+
+        return view('group', [
+            'groups' => $groups,
+            'totalGroups' => $groups->count(),
+            'attendanceTakenCount' => $groups->where('attendance_taken', true)->count(),
+            'totalStudents' => $students->count(),
+            'activeStudents' => $students->where('is_active', true)->count(),
+            'debtorsCount' => $students->where('debt', '>', 0)->count(),
+            'totalDebt' => $students->sum('debt'),
+            'students' => $students,
+        ]);
+    }
+
+
+
+    public function debt(Request $request)
+    {
+        $groupId = $request->query('id');
+
+        // Guruh mavjudligini tekshiramiz
+        $group = Group::find($groupId);
+        if (!$group) {
+            abort(404, 'Guruh topilmadi');
+        }
+
+        // Guruhga tegishli barcha GroupStudent-larni yuklab, ularning qarzlarini olish
+        $groupStudents = GroupStudent::with(['student', 'debt'])
+            ->where('group_id', $groupId)
+            ->get();
+
+        return view('Debt', [
+            'group' => $group,
+            'groupStudents' => $groupStudents,
+        ]);
+    }
+
 }

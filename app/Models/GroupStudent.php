@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GroupStudent extends Model
 {
@@ -27,5 +28,10 @@ class GroupStudent extends Model
     public function debts()
     {
         return $this->hasMany(Debt::class);
+    }
+
+    public function debt(): HasOne
+    {
+        return $this->hasOne(Debt::class);
     }
 }
