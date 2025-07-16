@@ -16,7 +16,7 @@
                         <i class="fas fa-user text-white"></i>
                     </div>
                     <div>
-                        <div class="font-medium text-gray-800" id="user-fullname-small">Yuklanmoqda ...</div>
+                        <div class="font-medium text-gray-800" >{{ $botUser->full_name }}</div>
 
                         <div class="text-sm text-gray-500">O'qituvchi</div>
                     </div>

@@ -75,10 +75,10 @@
                             <i class="fas fa-users mr-1"></i>
                             <span>{{ $group->students_count }}</span>
                         </div>
-                        <button
+                        <a href="{{route('attendance',['id' => $group->id])}}"
                             class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium hover:bg-blue-600 transition-colors">
                             {{ $group->attendance_taken ? "Ko'rish" : "Davomat olish" }}
-                        </button>
+                        </a>
                     </div>
                 </div>
             @endforeach

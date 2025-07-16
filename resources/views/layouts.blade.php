@@ -17,7 +17,19 @@
 @if (!request()->is('debt'))
     @include('components.bottom-nav')
 @endif
-
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'success': '#10B981',
+                    'danger': '#EF4444',
+                    'primary': '#3B82F6'
+                }
+            }
+        }
+    }
+</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="{{ asset('js/scripts.js') }}"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">

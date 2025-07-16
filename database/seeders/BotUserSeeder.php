@@ -31,6 +31,14 @@ class BotUserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'first_name' => 'Shaxzodbek ',
+                'last_name' => 'Qambaraliyev',
+                'phone' => '+998908212776',
+                'username' => 'shaxzodbekQ1',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 }

@@ -1,5 +1,5 @@
 <?php
-// app/Http/Controllers/HomeController.php
+// app/Http/Controllers/AllController.php
 namespace App\Http\Controllers;
 
 use App\Models\BotUser;
@@ -7,10 +7,11 @@ use App\Models\Evaluation;
 use App\Models\Group;
 use App\Models\GroupStudent;
 use App\Models\Student;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class HomeController extends Controller
+class AllController extends Controller
 {
     public function index()
     {
@@ -134,13 +135,11 @@ class HomeController extends Controller
     {
         $groupId = $request->query('id');
 
-        // Guruh mavjudligini tekshiramiz
         $group = Group::find($groupId);
         if (!$group) {
             abort(404, 'Guruh topilmadi');
         }
 
-        // Guruhga tegishli barcha GroupStudent-larni yuklab, ularning qarzlarini olish
         $groupStudents = GroupStudent::with(['student', 'debt'])
             ->where('group_id', $groupId)
             ->get();
@@ -148,6 +147,56 @@ class HomeController extends Controller
         return view('Debt', [
             'group' => $group,
             'groupStudents' => $groupStudents,
+        ]);
+    }
+
+    public function attendance(Request $request)
+    {
+        $groupId = $request->query('id');
+
+        $group = Group::find($groupId);
+        if (!$group) {
+            abort(404, 'Guruh topilmadi');
+        }
+
+        $today = Carbon::now()->format('Y-m-d');
+
+        $groupStudents = GroupStudent::with(['student'])->where('group_id', $groupId)->get();
+
+        foreach ($groupStudents as $groupStudent) {
+            // Bugungi kunga mos Evaluation tekshiriladi
+            $evaluationExists = Evaluation::where('group_student_id', $groupStudent->id)
+                ->where('date', $today)
+                ->where('score', '>', 0)
+                ->exists();
+
+            $groupStudent->attendance_status = $evaluationExists ? '✅ Keldi' : '❌ Kelmadi';
+        }
+
+        return view('attendance', [
+            'group' => $group,
+            'groupStudents' => $groupStudents,
+            'today' => $today,
+        ]);
+    }
+
+
+    public function settings(Request $request)
+    {
+        $phone = $request->query('phone', '+998889442402');
+
+        $normalizedPhone = preg_replace('/[^0-9]/', '', $phone);
+
+        $botUser = BotUser::whereRaw("
+        REPLACE(REPLACE(REPLACE(phone, '+', ''), ' ', ''), '-', '') = ?
+    ", [$normalizedPhone])->first();
+
+        if (!$botUser) {
+            abort(404, 'Foydalanuvchi topilmadi.');
+        }
+
+        return view('settings', [
+            'botUser' => $botUser
         ]);
     }
 
