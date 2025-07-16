@@ -182,7 +182,7 @@ class AllController extends Controller
 
     public function settings(Request $request)
     {
-        $phone = $request->query('phone', '+998889442402');
+        $phone = $request->query('phone', '+998908212776');
 
         $normalizedPhone = preg_replace('/[^0-9]/', '', $phone);
 
