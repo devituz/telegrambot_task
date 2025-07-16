@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GroupStudent extends Model
 {
-    protected $table = 'group_student'; // Explicitly set the table name
+    protected $table = 'group_student';
 
     protected $fillable = [
         'group_id',

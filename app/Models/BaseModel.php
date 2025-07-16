@@ -11,9 +11,7 @@ abstract class BaseModel extends Model
 
     protected $timezone = 'Asia/Tashkent';
 
-    /**
-     * Vaqtni 'H:i' formatda qaytarish
-     */
+
     protected function formatTime($value): ?string
     {
         return $value
@@ -23,17 +21,13 @@ abstract class BaseModel extends Model
             : null;
     }
 
-    /**
-     * start_time accessor (agar modelda mavjud bo‘lsa)
-     */
+
     public function getStartTimeAttribute($value): ?string
     {
         return $this->formatTime($value);
     }
 
-    /**
-     * end_time accessor (agar modelda mavjud bo‘lsa)
-     */
+
     public function getEndTimeAttribute($value): ?string
     {
         return $this->formatTime($value);
