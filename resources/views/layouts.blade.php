@@ -15,7 +15,7 @@
 </main>
 
 @if (!request()->is('debt'))
-    @include('components.bottom-nav')
+    @include('bottom-nav')
 @endif
 <script>
     tailwind.config = {

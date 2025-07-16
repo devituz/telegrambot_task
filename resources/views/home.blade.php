@@ -11,7 +11,7 @@
                     <i class="fas fa-crown text-yellow-400 mr-2"></i>
                     <span class="font-semibold">Xayrli tong</span>
                 </div>
-                <div class="text-blue-100 text-sm" id="user-fullname">{{ $fullname }} </div>
+                <div class="text-blue-100 text-sm">{{ $fullname }} </div>
             </div>
         </div>
 
