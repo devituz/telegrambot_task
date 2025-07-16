@@ -19,12 +19,11 @@ class AttendancesSeeder extends Seeder
         }
 
         foreach ($students as $student) {
-            // Har bir student uchun 5 ta random sana bo‘yicha davomat yoziladi
             foreach (range(1, 5) as $i) {
                 DB::table('attendances')->insert([
                     'student_id' => $student->id,
                     'date' => Carbon::now()->subDays(rand(0, 15))->format('Y-m-d'),
-                    'status' => rand(0, 1), // 0 = kelmagan, 1 = kelgan
+                    'status' => rand(0, 1),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
